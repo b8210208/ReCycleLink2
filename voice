@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ReCycleLink — Community Recycling & Eldercare</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+  <header>
+    <h1>ReCycleLink</h1>
+    <p class="tag" data-i="slogan">Your Recycling, Their Purpose.</p>
+    <div class="lang-switch">
+      <button id="langEN">EN</button>
+      <button id="langZH">中</button>
+    </div>
+  </header>
+
+  <section id="auth">
+    <h2 data-i="loginTitle">Login / 角色登入</h2>
+    <div class="row">
+      <label>
+        <span data-i="role">Role / 身份：</span>
+        <select id="role">
+          <option value="resident" data-i="resident">Resident / 住戶</option>
+          <option value="retiree" data-i="retiree">Retiree / 長者收運者</option>
+        </select>
+      </label>
+      <label>
+        <span data-i="name">Name / 名稱：</span>
+        <input id="name" placeholder="e.g., Ms. Chen" />
+      </label>
+      <button id="loginBtn" data-i="enter">Enter / 進入</button>
+    </div>
+  </section>
+
+  <nav id="tabs" class="hidden">
+    <button data-tab="post" data-i="post">Post Pickup / 登記回收</button>
+    <button data-tab="nearby" class="active" data-i="nearby">Nearby Tasks / 附近任務</button>
+    <button data-tab="map" data-i="map">Map / 地圖</button>
+    <button data-tab="my" data-i="my">My Tasks / 我的任務</button>
+    <button data-tab="impact" data-i="impact">Impact / 積分影響</button>
+  </nav>
+
+  <main>
+    <section id="post" class="tab hidden">
+      <h2 data-i="postTitle">Post a Pickup / 登記回收</h2>
+      <div class="row">
+        <label data-i="type">Type / 類別
+          <select id="type">
+            <option>Paper</option>
+            <option>Plastic</option>
+            <option>Metal</option>
+            <option>Glass</option>
+            <option>E-waste</option>
+          </select>
+        </label>
+        <label data-i="weight">Weight (kg) / 重量
+          <input id="weight" type="number" min="0" step="0.1" />
+        </label>
+      </div>
+      <div class="row">
+        <label data-i="address">Address / 地址
+          <input id="address" placeholder="JJHS, Kaohsiung" />
+          <button type="button" id="voiceAddressBtn">🎤 Voice Input / 語音輸入</button>
+        </label>
+      </div>
+      <div class="row">
+        <label>Lat / 緯度<input id="lat" type="number" step="0.000001" /></label>
+        <label>Lng / 經度<input id="lng" type="number" step="0.000001" /></label>
+        <button id="geoBtn" type="button" data-i="geoloc">Use my GPS / 用我的定位</button>
+      </div>
+      <div class="row">
+        <label data-i="time">Preferred time / 取件時間<input id="time" type="datetime-local" /></label>
+        <label data-i="tip">Tip (optional) / 小費
+          <input id="tip" type="number" min="0" step="10" />
+        </label>
+      </div>
+      <button id="postBtn" data-i="submit">Submit / 送出</button>
+      <p class="hint" data-i="demo">* Demo only. Data is saved to your browser (localStorage). / 僅示範用，資料存於瀏覽器。</p>
+    </section>
+
+    <section id="nearby" class="tab">
+      <div class="row">
+        <label>Your Lat<input id="meLat" type="number" step="0.000001" /></label>
+        <label>Your Lng<input id="meLng" type="number" step="0.000001" /></label>
+        <button id="useSampleLoc" type="button">Use School / 用學校座標</button>
+        <button id="refreshNearby" type="button">Refresh / 重新整理</button>
+        <button id="exportCSV" type="button">Export CSV</button>
+      </div>
+      <ul id="nearbyList"></ul>
+    </section>
+
+    <section id="map" class="tab hidden">
+      <div id="mapArea"></div>
+    </section>
+
+    <section id="my" class="tab hidden">
+      <ul id="myList"></ul>
+    </section>
+
+    <section id="impact" class="tab hidden">
+      <h2>Eco-Points / 積分</h2>
+      <p>Total points: <strong id="points">0</strong></p>
+      <p>Rules：1 kg = 10 pts；完成任務 +20 pts；小費為示意。</p>
+      <div id="activity"></div>
+    </section>
+  </main>
+
+  <footer>
+    <small>&copy; 2025 ReCycleLink — SDG 11 & 12 (Class Prototype)</small>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Check for Speech Recognition API
+    if ('webkitSpeechRecognition' in window) {
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      // Start recognition when button is clicked
+      document.getElementById('voiceAddressBtn').addEventListener('click', function() {
+        recognition.start();
+      });
+
+      // Capture the spoken words
+      recognition.onresult = function(event) {
+        const speechToText = event.results[0][0].transcript;
+        document.getElementById('address').value = speechToText;
+      };
+
+      recognition.onerror = function(event) {
+        alert('Error occurred in recognition: ' + event.error);
+      };
+    } else {
+      alert("Your browser does not support speech recognition.");
+    }
+  </script>
+</body>
+</html>
